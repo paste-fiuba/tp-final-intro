@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %} Ludoteca Central - Shopping Cart {% endblock %}
+
+{% block content %}
+
+
+
+<div class="breadcrumb-section container mx-auto my-5 px-2 sm:px-8">
+  <ul class="flex flex-wrap items-center gap-1">
+    <li class="transition-all-300 hover:text-primary-color">
+      <a href="{{ url_for('index') }}">Inicio</a>
+    </li>
+    <li>
+      <i class="bi bi-caret-right-fill flex text-primary-color"></i>
+    </li>
+    <li class="transition-all-300 active hover:text-primary-color">
+      <a href="{{ url_for('shopping_cart') }}">Carrito de Compras</a>
+    </li>
+  </ul>
+</div>
+
+<div class="banner-title-section container mx-auto my-5 px-2 sm:px-8">
+  <div class="liner-container my-5 flex justify-center border-b-2 border-[rgba(119,119,119,.17)]">
+    <h1 class="mb-[-2px] inline-block border-b-2 border-primary-color pb-3 text-2xl font-bold uppercase">
+      Carrito de Compras
+    </h1>
+  </div>
+</div>
+
+<div class="shopping-cart-page container mx-auto my-5 px-2 sm:px-8">
+  {% if carrito_detallado %}
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-200 text-gray-700">
+          <th>Imagen</th>
+          <th>Producto</th>
+          <th>Precio</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in carrito_detallado %}
+        <tr class="bg-gray-100 hover:bg-gray-200 transition-all border-b border-gray-300">
+          <td class="p-4">
+            <div class="h-[80px] w-[80px] min-w-[80px] overflow-hidden rounded-lg border">
+              <img class="h-full w-full object-cover" 
+                src="http://localhost:5000/catalogo/api/productos/{{ producto.id }}/imagen" 
+                alt="{{ producto.nombre }}" />
+            </div>
+          </td>
+
+          <td class="p-4 rounded-l-md">{{ producto.nombre }}</td>
+          <td class="p-4">${{ "%.2f"|format(producto.precio | float) }}</td>
+          <td class="p-4">
+            <form method="post" action="{{ url_for('update_cart', producto_id=producto.id) }}" class="flex items-center gap-2">
+              <input
+                type="number"
+                name="cantidad"
+                value="{{ producto.cantidad }}"
+                min="1"
+                max="{{ producto.stock }}"
+                class="w-[60px] rounded-md border border-primary-color bg-gray-50 px-2 py-1 text-center"
+              >
+              <button
+                type="submit"
+                class="rounded-md border border-primary-color bg-gray-100 px-3 py-1 text-sm hover:bg-primary-color hover:text-white transition-all"
+              >
+                Actualizar
+              </button>
+            </form>
+          </td>
+          <td class="p-4 font-semibold">${{ "%.2f"|format(producto.precio | float * producto.cantidad | int) }}</td>
+          <td class="p-4 rounded-r-md">
+            <form method="post" action="{{ url_for('remove_from_cart', producto_id=producto.id) }}">
+              <button
+                type="submit"
+                class="rounded-md border border-red-600 bg-red-100 px-3 py-1 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-all"
+              >
+                Eliminar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="{{ url_for('clear_cart') }}">
+      <button type="submit" style="border-radius:8px; border:1px solid #dc2626; padding:4px 12px; background:#fee2e2; color:#dc2626; cursor:pointer; margin-top: 10px;">
+        Vaciar carrito
+      </button>
+    </form>
+    <div class="text-right font-bold mt-4">
+      Total: ${{ "%.2f"|format(total) }}
+    </div>
+    <div class="text-right mt-4">
+    <div class="text-right mt-4">
+      {% if perfil_usuario %}
+  <form method="post" action="{{ url_for('finalizar_compra') }}">
+    <button
+      type="submit"
+      style="
+        display: inline-block;
+        min-width: 180px;
+        padding: 10px 24px;
+        background-color: #0E506C;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 8px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+      "
+      onmouseover="this.style.backgroundColor='#145d7c'"
+      onmouseout="this.style.backgroundColor='#0E506C'"
+    >
+      Finalizar compra
+    </button>
+  </form>
+{% else %}
+        <button
+          id="btn-finalizar-compra"
+          type="button"
+          style="
+            display: inline-block;
+            min-width: 200px;
+            padding: 10px 24px;
+            background-color: #0E506C;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+          "
+          onmouseover="this.style.backgroundColor='#145d7c'"
+          onmouseout="this.style.backgroundColor='#0E506C'"
+        >
+          Finalizar compra
+        </button>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="shopping-cart-empty flex flex-col items-center justify-center gap-4 p-5">
+      <i class="bi bi-cart-x text-8xl text-gray-200"></i>
+      <p class="text-lg font-semibold">No hay productos en el carrito.</p>
+      <a class="btn-effect transition-all-300 flex items-center justify-center gap-2 rounded-lg bg-primary-color p-2"
+        href="{{ url_for('shop_mixed') }}">
+        <span class="font-bold uppercase text-white">Ir a Productos</span>
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="menu-mob modal transition-all-300 invisible fixed inset-0 z-50 h-full w-full bg-overlay opacity-0">
+  <div class="flex h-full w-full">
+    <div
+      class="modal-content transition-all-300 relative left-[-999px] mr-auto flex h-full w-[288px] min-w-[250px] flex-col bg-white">
+      <div class="w-full bg-secondary-color">
+        <button class="btn-close-modal transition-all-300 absolute top-5 right-5 p-[3px] text-white">
+          <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex text-xl"></i>
+        </button>
+        <div class="py-12">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" class="mx-auto h-[40px]" alt="logo" />
+        </div>
+      </div>
+      <nav class="h-full w-full overflow-auto bg-white">
+        <ul class="metismenu">
+          <li class="border-b border-gray-200">
+            <a class="flex select-none items-center p-2" href="{{ url_for('index') }}">
+              <i class="bi bi-house-door mr-3 flex text-xl text-primary-color"></i>
+              <span class="font-semibold">Home</span>
+            </a>
+          </li>
+          <li class="border-b border-gray-200">
+            <div class="metismenu-btn has-arrow flex cursor-pointer select-none items-center p-2" aria-expanded="false"
+              role="menu">
+              <i class="bi bi-person mr-3 flex text-xl text-primary-color"></i>
+              <span class="font-semibold">My Account</span>
+            </div>
+            <div class="metismenu-content">
+              <a class="btn-open-modal ml-10 block p-1" href="#" data-tab="0" data-target=".entry-modal">Login</a>
+              <a class="btn-open-modal ml-10 block p-1" href="#" data-tab="1" data-target=".entry-modal">Sign Up</a>
+            </div>
+          </li>
+          <li class="border-b border-gray-200">
+            <div class="btn-open-modal cursor-pointer p-2" data-target=".wishlist-modal">
+              <div class="pointer-events-none flex cursor-pointer select-none items-center">
+                <i class="bi bi-heart mr-3 flex text-xl text-primary-color"></i>
+                <span class="font-semibold">Wishlist</span>
+                <span class="badge ml-auto h-[22px] min-w-[22px] px-[6px]">0</span>
+              </div>
+            </div>
+          </li>
+          <li class="border-b border-gray-200">
+            <div class="btn-open-modal cursor-pointer p-2" data-target=".shopping-cart-modal">
+              <div class="pointer-events-none flex cursor-pointer select-none items-center">
+                <i class="bi bi-cart mr-3 flex text-xl text-primary-color"></i>
+                <span class="font-semibold">Shopping Cart</span>
+                <span class="badge ml-auto h-[22px] min-w-[22px] px-[6px]">0</span>
+              </div>
+            </div>
+          </li>
+          <li class="border-b border-gray-200">
+            <a class="flex select-none items-center p-2" href="{{ url_for('contact_us')}}">
+              <i class="bi bi-telephone mr-3 flex text-xl text-primary-color"></i>
+              <span class="font-semibold">Contact Us</span>
+            </a>
+          </li>
+          <li class="border-b border-gray-200">
+            <div class="metismenu-btn has-arrow flex cursor-pointer select-none items-center p-2" aria-expanded="false"
+              role="menu">
+              <span class="font-semibold">Pages</span>
+            </div>
+            <div class="metismenu-content">
+
+              <a class="btn-open-modal ml-10 block p-1" href="{{ url_for('shopping_cart') }}">Shopping Cart</a>
+              <a class="btn-open-modal ml-10 block p-1" href="{{ url_for('product_details', product_id=1) }}">Product
+                Details</a>
+
+              <a class="btn-open-modal ml-10 block p-1" href="{{ url_for('shop_mixed') }}">Shop - Mixed</a>
+
+              <a class="btn-open-modal ml-10 block p-1" href="{{ url_for('my_account') }}">My Account</a>
+              <a class="btn-open-modal ml-10 block p-1" href="{{ url_for('purchase_completed') }}">Purchase
+                Completed</a>
+
+
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+<!-- -->
+
+<div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0">
+  <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+    <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white"></i>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const btnFinalizar = document.getElementById('btn-finalizar-compra');
+    if (btnFinalizar) {
+      btnFinalizar.addEventListener('click', function () {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+          modal.classList.remove('invisible', 'opacity-0');
+          modal.classList.add('visible', 'opacity-100');
+        }
+      });
+    }
+    const btnCerrarModal = document.querySelector('#auth-modal .btn-close-modal');
+    if (btnCerrarModal) {
+      btnCerrarModal.addEventListener('click', function () {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+          modal.classList.add('invisible', 'opacity-0');
+          modal.classList.remove('visible', 'opacity-100');
+        }
+      });
+    }
+  });
+</script>
+
+
+{% endblock %}

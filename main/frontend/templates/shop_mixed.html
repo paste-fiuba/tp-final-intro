@@ -1,0 +1,322 @@
+{% extends "base.html" %} {% block title %}Shop mixed - Ludoteca{% endblock %}
+
+{% block content %}
+
+<div class="shop-section container mx-auto my-5 px-2 sm:px-8">
+  <div class="grid grid-cols-12 gap-5">
+    <div class="col-span-12">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="text-lg">
+          Results of '<span id="busqueda-actual" class="text-blue-400"></span>'
+        </span>
+        <div class="flex items-center gap-5">
+          <form>
+            <select id="ordenar-precio" class="nice-select order-by select">
+              <option value="0">Precio mas bajo</option>
+              <option value="1">Precio mas alto</option>
+            </select>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-3">
+      <form class="flex flex-col rounded-lg bg-white p-5" method="get" action="{{ url_for('shop_mixed') }}">
+        <div class="mb-5 border-t-2 pt-5">
+          <div class="relative flex items-center">
+            <i class="bi bi-search text-stroke-medium absolute ml-4 flex text-gray-400"></i>
+            <input id="buscador-productos" class="input pl-10" type="search" placeholder="Buscar..." />
+          </div>
+        </div>
+        <div class="mb-5 border-t-2 pt-5">
+          <span class="mb-2 flex font-semibold">Servicios</span>
+          <label
+            class="transition-all-300 my-1 flex cursor-pointer select-none items-center gap-2 hover:text-primary-color">
+            <input class="checkbox" type="checkbox" name="stock_disponible" value="1" {% if stock_disponible %}checked{%
+              endif %} onchange="this.form.submit()" />
+            <span class="text-gray-title">Stock disponible</span>
+          </label>
+        </div>
+        <div class="mb-5 border-t-2 pt-5">
+          <span class="mb-2 flex font-semibold">Categorias</span>
+          <div class="flex flex-col gap-1">
+            <label
+              class="transition-all-300 flex cursor-pointer select-none items-center gap-2 p-1 hover:text-primary-color">
+              <input type="radio" name="categoria" value="" onchange="this.form.submit()" {% if not categoria
+                %}checked{% endif %} />
+              <span class="text-gray-title">Todas</span>
+            </label>
+            {% for cat in categorias %}
+            <label
+              class="transition-all-300 flex cursor-pointer select-none items-center gap-2 p-1 hover:text-primary-color">
+              <input type="radio" name="categoria" value="{{ cat }}" onchange="this.form.submit()" {% if cat==categoria
+                %}checked{% endif %}>
+              <span class="text-gray-title">{{ cat }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-span-12 md:col-span-8 lg:col-span-8 xl:col-span-9">
+      <div class="mix-elements mix-all grid grid-cols-12 gap-5">
+        {% for producto in productos %}
+        <div class="mix mix-main col-span-12 h-auto sm:col-span-6 lg:col-span-4 producto-card"
+          data-nombre="{{ producto.nombre|lower }}" data-descripcion="{{ producto.descripcion|lower }}" data-precio="{{ producto.precio }}">
+          <div
+            class="card-container transition-all-300 translateY-2 relative flex h-full flex-col overflow-hidden rounded-lg bg-white p-5 shadow-md hover:z-[2] hover:shadow-xl">
+            <div class="h-[190px] overflow-hidden rounded-lg">
+              <a href="{{ url_for('product_details', product_id=producto.id) }}">
+                <img class="card-object-fit h-full w-full" src="http://localhost:5000/catalogo/api/productos/{{ producto.id }}/imagen"
+                  alt="{{ producto.nombre }}" />
+              </a>
+            </div>
+            <div class="my-2 flex justify-between">
+              <div>
+                {% if producto.stock > 0 %}
+                <span class="rounded-md bg-stock py-1 px-2 text-xs font-bold uppercase text-white">
+                  Stock disponible
+                </span>
+                {% else %}
+                <span class="rounded-md bg-gray-200 py-1 px-2 text-xs font-bold uppercase text-gray-400">
+                  Sin stock
+                </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="my-1">
+              <a class="clamp break-all font-medium" href="#">
+                {{ producto.nombre }}
+              </a>
+            </div>
+            <div class="my-1">
+              <p class="clamp-2 text-sm text-gray-400">
+                {{ producto.descripcion }}
+              </p>
+            </div>
+            <div class="my-1">
+              <span class="text-lg font-bold">${{ producto.precio }}</span>
+            </div>
+            <div class="mt-auto">
+              <a class="btn-effect transition-all-300 flex w-full items-center justify-center rounded-lg bg-primary-color p-2"
+                href="{{ url_for('product_details', product_id=producto.id) }}">
+                <span class="font-bold uppercase text-white">Ver Detalles</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <div id="no-resultados" class="col-span-12 text-center text-gray-400 py-10" style="display:none;">
+          No se encontraron productos.
+        </div>
+        {% if productos|length == 0 %}
+        <div class="col-span-12 text-center text-gray-400 py-10">
+          No se encontraron productos.
+        </div>
+        {% endif %}
+        {% if perfil_usuario.role == "admin" %}
+        <div class="mix mix-main col-span-12 h-auto sm:col-span-6 lg:col-span-4">
+          <div
+            class="card-container relative transition-all-300 translateY-2 flex h-full flex-col overflow-hidden rounded-lg bg-white p-5 shadow-md hover:z-[2] hover:shadow-xl">
+            <div
+              class="absolute inset-0 bg-white bg-opacity-50 opacity-0 transition-opacity pointer-events-none hover:opacity-100"
+              style="z-index: 5;">
+            </div>  
+            <button
+              class="btn-add-product"
+              style="width: 100%; height: 100%;"
+              onclick="document.getElementById('add-product-modal').classList.remove('invisible','opacity-0')"
+            >
+              <span>Agregar producto</span>
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div id="add-product-modal"
+  class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 opacity-0 invisible transition-opacity duration-300">
+  <div class="modal-content relative w-screen rounded-xl bg-white p-8 shadow-2xl transform transition-transform duration-300 scale-95">
+    <button class="btn-close-modal absolute top-4 right-4 rounded-full p-2 text-gray-400 hover:text-primary-color focus:outline-none focus:ring-2 focus:ring-primary-color"
+      onclick="document.getElementById('add-product-modal').classList.add('invisible','opacity-0')">
+      <i class="bi bi-x-lg text-2xl"></i>
+    </button>
+    <h2 class="mb-6 text-3xl font-extrabold text-primary-color">Agregar Producto</h2>
+    <form method="post" action="{{ url_for('agregar_producto') }}" enctype="multipart/form-data" class="space-y-6">
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="nombre">Nombre</label>
+        <input id="nombre" name="nombre" type="text" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="descripcion">Descripción</label>
+         <textarea id="descripcion" name="descripcion" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition resize-none h-24"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="precio">Precio</label>
+        <input id="precio" name="precio" type="number" min="0" step="0.01" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="stock">Stock</label>
+        <input id="stock" name="stock" type="number" min="0" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 placeholder-gray-400 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="categoria">Categoría</label>
+        <select id="categoria" name="categoria" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition">
+          {% for categoria in categorias %}
+          <option value="{{ categoria }}">{{ categoria }}</option>
+          {% endfor %}
+        </select>
+      <div>
+        <label class="block text-sm font-semibold mb-2" for="imagen">Imagen</label>
+        <input id="imagen" name="imagen" type="file" accept="image/*" required
+          class="input w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 focus:border-primary-color focus:ring-2 focus:ring-primary-color focus:outline-none transition" />
+      </div>
+      <button
+        class="btn-effect w-full rounded-lg bg-primary-color p-3 font-bold uppercase text-white hover:bg-primary-color/90 transition"
+        type="submit">
+        Agregar
+      </button>
+    </form>
+  </div>
+</div>
+<div class="menu-mob modal transition-all-300 invisible fixed inset-0 z-50 h-full w-full bg-overlay opacity-0">
+  <div class="flex h-full w-full">
+    <div
+      class="modal-content transition-all-300 relative left-[-999px] mr-auto flex h-full w-[288px] min-w-[250px] flex-col bg-white">
+      <div class="w-full bg-secondary-color">
+        <button class="btn-close-modal transition-all-300 absolute top-5 right-5 p-[3px] text-white">
+          <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex text-xl"></i>
+        </button>
+        <div class="py-12">
+          <img src="images/logo.png" class="mx-auto h-[40px]" alt="logo" />
+        </div>
+      </div>
+      <nav class="h-full w-full overflow-auto bg-white">
+        <ul class="metismenu">
+          <li class="border-b border-gray-200">
+            <a class="flex select-none items-center p-2" href="index.html">
+              <i class="bi bi-house-door mr-3 flex text-xl text-primary-color"></i>
+              <span class="font-semibold">Home</span>
+            </a>
+          </li>
+          <li class="border-b border-gray-200">
+            <div class="group relative">
+              <a class="cursor-pointer">Cuenta</a>
+              <div class="transition-all-300 invisible absolute top-full z-30 w-[120%] pt-[10px] opacity-0 group-hover:visible group-hover:opacity-100">
+                <div class="arrow relative">
+                  <ul class="overflow-hidden rounded-md bg-white p-[6px] shadow-custom-1">
+                    {% if logged_in %}
+                      <li class="hover:font-semibold">
+                        <a href="{{ url_for('logout') }}">
+                          <div class="flex items-center gap-2 p-1">
+                            <i class="bi bi-box-arrow-right text-xl text-primary-color" style="color: #011638;"></i>
+                            <span>Logout</span>
+                          </div>
+                        </a>
+                      </li>
+                      {% else %}
+                        <li class="hover:font-semibold">
+                          <a href="#" class="btn-open-modal" data-tab="0" data-target=".entry-modal">
+                            <div class="pointer-events-none flex items-center gap-2 p-1">
+                              <i class="bi bi-box-arrow-in-right text-xl text-primary-color" style="color: #011638;"></i>
+                              <span>Login</span>
+                            </div>
+                          </a>
+                        </li>
+                        <li class="hover:font-semibold">
+                          <a href="#" class="btn-open-modal" data-tab="1" data-target=".entry-modal">
+                            <div class="pointer-events-none flex items-center gap-2 p-1">
+                              <i class="bi bi-person text-xl text-primary-color" style="color: #011638;"></i>
+                              <span>Registrarse</span>
+                            </div>
+                          </a>
+                        </li>
+                    {% endif %}                 
+                  </ul>
+                </div>
+              </div>  
+            </div>  
+          </li>
+          
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<!-- -->
+
+<div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0">
+  <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+    <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white"></i>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('buscador-productos');
+    const cards = document.querySelectorAll('.producto-card');
+    const noResultados = document.getElementById('no-resultados');
+    const busquedaActual = document.getElementById('busqueda-actual');
+    const ordenar = document.getElementById('ordenar-precio');
+    const grid = document.querySelector('.mix-elements');
+
+    function filtrar() {
+      const valor = input.value.trim().toLowerCase();
+      let visibles = 0;
+      cards.forEach(card => {
+        const nombre = card.getAttribute('data-nombre');
+        const descripcion = card.getAttribute('data-descripcion');
+        if (nombre.includes(valor) || descripcion.includes(valor)) {
+          card.style.display = '';
+          visibles++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      if (noResultados) {
+        noResultados.style.display = visibles === 0 ? '' : 'none';
+      }
+      if (busquedaActual) {
+        busquedaActual.textContent = valor;
+      }
+    }
+
+    function ordenarProductos() {
+      const visibles = Array.from(cards).filter(card => card.style.display !== 'none');
+      visibles.sort((a, b) => {
+        const precioA = parseFloat(a.getAttribute('data-precio'));
+        const precioB = parseFloat(b.getAttribute('data-precio'));
+        if (ordenar.value === "0") {
+          return precioA - precioB; 
+        } else {
+          return precioB - precioA; 
+        }
+      });
+      visibles.forEach(card => grid.appendChild(card));
+    }
+
+    input.addEventListener('input', function() {
+      filtrar();
+      ordenarProductos();
+    });
+
+    if (ordenar) {
+      ordenar.addEventListener('change', ordenarProductos);
+    }
+
+    filtrar();
+    ordenarProductos();
+  });
+</script>
+
+{% endblock %}

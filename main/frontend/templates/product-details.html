@@ -1,0 +1,151 @@
+{% extends "base.html" %} {% block title %}Ludoteca central - Product details{%
+endblock %} {% block content %}
+
+
+
+<div class="product-details container mx-auto my-5 px-2 sm:px-8">
+  <div class="grid grid-cols-12 gap-5 rounded-lg bg-white p-2 xs:p-8">
+    <div class="col-span-12 max-h-[500px] md:col-span-6">
+      <div class="swiper swiper-top group relative flex items-center rounded-lg">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="swiper-zoom-container">
+              <img src="{{ url_for('obtener_imagen_producto', producto_id=product.id) }}" alt="product" />
+            </div>
+          </div>
+        </div>
+        <div class="button-next btn-slider-1 transition-all-300 -right-16 group-hover:right-4">
+          &#10095;
+        </div>
+        <div class="button-prev btn-slider-1 transition-all-300 -left-16 group-hover:left-4">
+          &#10094;
+        </div>
+      </div>
+      <div class="swiper swiper-thumbs">
+        <div class="swiper-wrapper"></div>
+        <div class="button-next btn-slider-1 transition-all-300 -right-16 group-hover:right-4">
+          &#10095;
+        </div>
+        <div class="button-prev btn-slider-1 transition-all-300 -left-16 group-hover:left-4">
+          &#10094;
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-6">
+      <div class="my-1">
+        <a class="clamp-2 transition-all-300 break-all text-2xl font-medium hover:text-primary-color">
+          {{ product.nombre }}
+        </a>
+      </div>
+      <div class="product-val-stock my-2 flex justify-between">
+        <div class="ml-auto">
+          {% if product.stock >= 0 %}
+          <span class="rounded-md bg-[#0E506C] px-2 py-1 text-xs font-bold uppercase text-green-300">Stock disponible</span>
+          {% else %}
+          <span class="rounded-md bg-[#0E506C] px-2 py-1 text-xs font-bold uppercase text-red-300">No hay stock</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="my-5 flex items-center gap-5">
+        <div class="text-lg font-bold">
+          <span class="text-sm">$</span>
+          <span class="text-2xl font-bold leading-7">{{ product.precio }}</span>
+        </div>
+        <div class="flex flex-col"></div>
+      </div>
+
+      <div class="my-4">
+        <p class="clamp-5 break-all">{{ product.descripcion }}</p>
+      </div>
+
+      <div class="flex gap-3 items-center">
+        <form method="post" action="{{ url_for('add_to_cart', producto_id=product.id) }}">
+          <input
+            class="quantity-value input-number w-12 border border-gray-300 rounded-md bg-white p-1 text-center text-sm text-black focus:outline-none focus:ring-1 focus:ring-primary-color"
+            type="number" name="cantidad" value="1" min="1" max="{{ product.stock }}" {% if product.stock==0
+            %}disabled{% endif %} />
+
+          <!-- ...botones de cantidad... -->
+          <button
+            class="btn-effect transition-all-300 flex h-10 items-center justify-center gap-1 rounded-md bg-primary-color p-1"
+            type="submit" {% if product.stock==0 %}disabled{% endif %}>
+            <i class="bi bi-cart-fill flex text-base text-white"></i>
+            <span class="font-bold uppercase text-white text-sm">Añadir al carrito</span>
+          </button>
+
+        </form>
+      </div>
+
+      <div class="mt-5 border-t border-gray-200 pt-5">
+        <div>
+          <b>Categoria: </b>
+          <span> {{ product.categoria }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="related-products container mx-auto my-5 px-2 sm:px-8">
+  <div class="liner-container mt-5 flex justify-center border-b-2 border-[rgba(119,119,119,.17)]">
+    <h1 class="mb-[-2px] inline-block border-b-2 border-primary-color pb-3 text-2xl font-bold uppercase">
+      Productos relacionados
+    </h1>
+  </div>
+  <div class="swiper-container">
+    <div class="swiper swiper-cards group relative flex items-center py-5">
+      <div class="swiper-wrapper">
+        {% for producto in productos %}
+        <div class="swiper-slide h-auto">
+          <div
+            class="card-container transition-all-300 translateY-2 relative flex h-full flex-col overflow-hidden rounded-lg bg-white p-5 shadow-md hover:z-[2] hover:shadow-xl">
+            <div class="h-[190px] overflow-hidden rounded-lg">
+              <a href="{{ url_for('product_details', product_id=producto.id) }}">
+                <img class="card-object-fit h-full w-full" src="{{ url_for('obtener_imagen_producto', producto_id=producto.id) }}"
+                  alt="{{ producto.nombre }}" />
+              </a>
+            </div>
+            <div class="my-2 flex justify-between">
+              <div>
+                <span class="rounded-md bg-[#0E506C] px-2 py-1 text-xs font-bold uppercase text-white">
+                  {% if producto.stock > 0 %}instock{% else %}out of stock{% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="my-1">
+              <a class="clamp break-all font-medium" href="{{ url_for('product_details', product_id=producto.id) }}">
+                {{ producto.nombre }}
+              </a>
+            </div>
+            <div class="my-1">
+              <p class="clamp-2 text-sm text-gray-400">
+                {{ producto.descripcion }}
+              </p>
+            </div>
+            <div class="my-1">
+              <span class="text-lg font-bold">${{ producto.precio }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="button-next btn-slider-1 transition-all-300 -right-16 group-hover:right-4">
+        &#10095;
+      </div>
+      <div class="button-prev btn-slider-1 transition-all-300 -left-16 group-hover:left-4">
+        &#10094;
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+
+<div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0">
+  <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+    <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white"></i>
+  </div>
+</div>
+
+{% endblock %}

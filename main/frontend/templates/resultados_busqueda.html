@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto my-8 px-4">
+    <h2 class="text-2xl font-bold mb-4">Resultados para "{{ consulta }}"</h2>
+    {% if productos %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for producto in productos %}
+            <div class="rounded-lg bg-white p-4 shadow">
+                <a href="{{ url_for('product_details', product_id=producto.id) }}">
+                    <img src="{{ url_for('obtener_imagen_producto', producto_id=producto.id) }}" alt="{{ producto.nombre }}" class="h-40 w-full object-cover rounded mb-2">
+                    <h3 class="text-lg font-semibold">{{ producto.nombre }}</h3>
+                </a>
+                <p class="text-gray-600 mb-2">{{ producto.descripcion }}</p>
+                <span class="font-bold text-primary-color">${{ producto.precio }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No se encontraron productos para tu búsqueda.</p>
+    {% endif %}
+</div>
+{% endblock %}

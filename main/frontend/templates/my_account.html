@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Ludoteca - My Account{% endblock %}
+
+{% block content %}
+
+ {% if perfil_usuario %}
+ 
+  <div class="container mx-auto my-5 px-2 sm:px-8">
+    <div class="tabs-container grid grid-cols-12 gap-2">
+      <div class="col-span-12 lg:col-span-4">
+        <div class="flex flex-col items-center gap-5 rounded bg-white p-5">
+          <div class="flex flex-col items-center">
+            <div class="relative">
+              <div class="h-24 w-24 overflow-hidden rounded-full bg-gray-200 shadow-md">
+                <img class="h-full w-full object-cover" src="{{ url_for('static', filename='images/img/foto_perfil.jpg') }}" alt="profile" />
+              </div>
+            </div>
+            <div class="mt-2 text-center">
+              <span class="block font-bold">{{ perfil_usuario.username }}</span>
+            </div>
+          </div>
+          <ul class="w-full text-sm">
+            <li class="btn-tabs tab-active-2 transition-all-300 active border-t hover:bg-gray-100">
+              <a class="flex items-center gap-2 px-1 py-2" href="javascript:void(0)">
+                <i class="bi bi-person flex text-3xl text-primary-color"></i>
+                <span>Mi Cuenta</span>
+              </a>
+            </li>
+            <li class="btn-tabs tab-active-2 transition-all-300 border-t hover:bg-gray-100">
+              <a class="flex items-center gap-2 px-1 py-2" href="javascript:void(0)">
+                <i class="bi bi-clipboard flex text-3xl text-primary-color"></i>
+                <span>Mis Pedidos</span>
+              </a>
+            </li>
+            {% if logged_in %}
+            <li class="hover:font-semibold">
+              <a href="{{ url_for('logout') }}">
+                <div class="flex items-center gap-2 p-1">
+                  <i class="bi bi-box-arrow-right text-xl text-primary-color"></i>
+                  <span>Salir</span>
+                </div>
+              </a>
+            </li>
+            {% else %}
+            <!-- Aquí puedes poner el link de login si quieres -->
+            {% endif %}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tabs-content col-span-12 lg:col-span-8">
+        <div class="tab-content active flex h-full flex-col gap-5 rounded bg-white p-5">
+          <span class="block text-xl font-bold">Mi Cuenta</span>
+          <form class="grid grid-cols-12 gap-2" action="#">
+            <div class="col-span-12 xs:col-span-12">
+              <label class="flex flex-col text-sm">
+                Nombre
+                <input class="input h-10" type="text" placeholder="{{ perfil_usuario.username }}" value="{{ perfil_usuario.username }}" readonly />
+              </label>
+            </div>
+            <div class="col-span-12 xs:col-span-6">
+              
+            </div>
+            <div class="col-span-12 xs:col-span-6">
+              
+            </div>
+            <div class="col-span-12">
+              <label class="flex flex-col text-sm">
+                Email
+                <input class="input h-10" type="text" placeholder="{{ perfil_usuario.email }}" value="{{ perfil_usuario.email }}"
+                  readonly />
+              </label>
+            </div>
+          </form>
+        </div>
+
+
+        <div class="tab-content flex h-full flex-col gap-5 rounded bg-white p-5">
+          {% if pedido %}
+    <span class="block text-xl font-bold">Mis Pedidos</span>
+  <table style="width: 90%; margin: 40px auto; text-align: center; border-collapse: collapse; border: 1px solid black;" class="table table-striped table-bordered">
+    <thead>
+      <tr>       
+        <th style="border: 1px solid black;">ID del Pedido</th>
+        <th style="border: 1px solid black;">ID del Producto Comprado</th>
+        <th style="border: 1px solid black;">Cantidad</th>       
+        <th style="border: 1px solid black;">Precio x unidad</th>   
+      </tr>
+    </thead>
+    <tbody>
+        {% for datos in detalles %}
+        {% for dato in datos %}
+      <tr>
+        <td style="border: 1px solid black;"># {{ dato.pedido_id }}</td>
+        <td style="border: 1px solid black;">{{ dato.producto_id }}</td>
+        <td style="border: 1px solid black;">x{{ dato.cantidad }}</td>
+        <td style="border: 1px solid black;">${{ dato.precio}}</td>
+      </tr>
+      {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+   <span class="block text-xl font-bold">Fecha en que se realizaron</span>
+          <div class="flex flex-wrap justify-between gap-5">
+        <table style="width: 90%; margin: 40px auto; text-align: center; border-collapse: collapse; border: 1px solid black;" class="table table-striped table-bordered">
+    <thead>
+      <tr>       
+        <th style="border: 1px solid black;">ID del Pedido</th>
+        <th style="border: 1px solid black;">Fecha de Compra</th>     
+      </tr>
+    </thead>
+    <tbody>
+        {% for dato in pedido %}
+      <tr>
+        <td style="border: 1px solid black;"># {{ dato.id }}</td>
+        <td style="border: 1px solid black;">{{ dato.fecha }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>                                         
+      </div>
+    </div>       
+  </div>
+ </div>      
+</div>
+        {% else %}
+          <span class="block text-xl font-bold">No realizaste ningun pedido.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+
+
+{% else %}
+<div class="flex items-center justify-center bg-body">
+    <div class="rounded-xl bg-white shadow-xl p-10 flex flex-col items-center gap-8 w-full max-w-md">
+        <h1 class="text-3xl font-bold text-black mb-4 text-center">
+            Sesión cerrada.
+        </h1>
+        <p>
+            Inicie sesión para ver detalles de la cuenta.
+        </p>
+        
+    </div>
+</div>
+  {% endif %}
+{% endblock %}
+

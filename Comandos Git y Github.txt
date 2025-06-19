@@ -1,0 +1,36 @@
+pwd muestra la ruta
+ls lista el contenido
+ls -a lista el contenido oculto
+cd cambia de directorio, se usa asi: cd nombreArchivo
+Para volver atras usamos: cd ..
+mkdir crea una carpeta, se usa asi: mkdir "nombreCarpeta"
+touch crea un archivo, se usa asi: touch nombreArchivo.extension (ejemplo: touch index.html)
+cp sirve para copiar archivos, se usa asi: cp "nombreArchivo.extension" nombreDestino/archivoCopiado (ejemplo: cp index.html DesarolloWeb/index2.html)
+cp -r sirve para copiar carpetas, se usa asi: cp -r carpetaCopiada carpetaDestino
+mv sirve para mover archivos, se usa asi: mv nombreArchivo.extension carpetaDestino o mv nombreCarpeta carpetaDestino (el uso es dependiendo de si es una carpeta o un archivo lo que querramos mover)
+rm sirve para eliminar archivos, se usa asi: rm nombreArchivo.extension
+rm -r sirve para eliminar carpetas, se usa asi: rm -r nombreCarpeta
+cat muestra archivos
+tac muestra archivos al reves
+wc  cuenta lineas, palabras y los caracteres (-c para caracteres unicamente)
+
+Configuracion git:
+git config --global user.name "Tu nombre"
+git config --global user.email "Tu correo"
+git config --list verificar valores ingresados
+git init inicia git
+git add. agrega los archivos al control de versiones
+git commit -m "Descripcion del cambio"
+git status permite ver que cambios hay
+git log permite conocer la cantidad de commits
+ls -la sirve para listar todos los archivos (publicos y privados)
+ssh-keygen -t rsa -b 4096 -C "contraseña si queres, sino vacio" genera claves
+eval "$(ssh-agent -s)" ejecuta las claves (las levanta en el servidor)
+ssh-add ~/.ssh/id_rsa agrega identificacion al agente de seguimiento
+clip < ~/.ssh/nombreArchivo.pub copia los datos de la clave (en Windows)
+cat ~/.ssh/id_rsa.pub | clip.exe (en wsl)
+git branch -M main sirve para indicar la rama principal
+git remote add origin "link al repositorio de github" sirve para agregar al repositorio remoto
+git push -u origin main se usa para subir al repositorio remoto de github
+git clone "link al repositorio" descarga un proyecto
+git pull origin main sirve para bajar los cambios de un repositorio remoto.

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos{% endblock %}
+
+
+{% block content %}
+
+{% if perfil_usuario.role == "admin" %}
+
+<table style="width: 90%; margin: 40px auto; text-align: center; border-collapse: collapse; border: 1px solid black;" class="table table-striped table-bordered">
+    <thead>
+      <tr>       
+        <th style="border: 1px solid black;">ID Pedido</th>
+        <th style="border: 1px solid black;">ID Usuario</th>
+        <th style="border: 1px solid black;">Fecha</th>    
+        <th style="border: 1px solid black;">Ver mas</th>       
+      </tr>
+    </thead>
+    <tbody>
+        {% for dato in datos %}
+      <tr>
+        <td style="border: 1px solid black;"># {{ dato.id }}</td>
+        <td style="border: 1px solid black;">{{ dato.usuario_id }}</td>
+        <td style="border: 1px solid black;">{{ dato.fecha }}</td>
+        <td style="border: 1px solid black;">
+      <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+      <form action="{{ url_for('administrar_pedidos') }}" method="POST" style="display:inline;">
+        <input type="hidden" name="pedido_id" value="{{ dato.id }}">
+        <button type="submit"
+          class="mx-2 flex-1 flex items-center justify-center gap-2 rounded-lg p-2 text-lg font-bold uppercase text-white shadow-lg hover:scale-105 transition-all-300"
+          style="background-color: #0e506c">
+          Detalles
+        </button>
+      </form>
+      </div>
+       </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  
+  </div>
+  <div class="purchase-completed-section container mx-auto my-5 px-2 sm:px-8">
+      <div style="text-align: center; margin-top: 30px;">
+      <a class="btn-effect rounded-lg bg-primary-color p-2 font-bold uppercase text-white" href="{{ url_for('administrar_pagina') }}">
+        <span>Volver a administrar</span>
+      </a>
+      </div>
+  </div>
+
+ 
+  <div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0">
+    <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+      <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white"></i>
+    </div>
+  </div>
+<div id="mi-modal"
+    class="entry-modal modal transition-all-300 fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-start overflow-auto bg-overlay {{ 'invisible opacity-0' if not modal else '' }}">
+    <div class="my-10 flex w-full justify-center">
+        <div
+            class="entry-content modal-content transition-all-300 relative mx-3 w-[500px] min-w-[250px] rounded-lg bg-white px-3 pb-3 pt-7 xs:px-5 xs:pb-5 md:m-5">
+            <button
+                class="btn-close-modal transition-all-300 absolute top-0 right-0 p-2 sm:top-[-10px] sm:right-[-10px] sm:rounded-lg sm:bg-primary-color sm:text-white sm:hover:bg-primary-hover"
+                onclick="document.getElementById('mi-modal').classList.add('invisible','opacity-0')"
+                aria-label="Cerrar">
+                <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex"></i>
+            </button>
+            <div class="flex flex-col items-center gap-4">
+                <h2 class="text-xl font-bold text-primary-color text-center" style="color: #0e506c">
+                    Detalles de Pedido #{{ id }}
+                </h2>
+              <table style="width: 90%; margin: 40px auto; text-align: center; border-collapse: collapse; border: 1px solid black;" class="table table-striped table-bordered">
+                <thead>
+                  <tr>       
+                    <th style="border: 1px solid black;">ID Pedido</th>
+                    <th style="border: 1px solid black;">ID Producto</th>
+                    <th style="border: 1px solid black;">Cantidad</th>    
+                    <th style="border: 1px solid black;">Precio x unidad</th>       
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for dato in datosid %}
+                  <tr>
+                    <td style="border: 1px solid black;"># {{ dato.pedido_id }}</td>
+                    <td style="border: 1px solid black;">{{ dato.producto_id }}</td>
+                    <td style="border: 1px solid black;">x{{ dato.cantidad }}</td>
+                    <td style="border: 1px solid black;">${{ dato.precio }}</td>                   
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+      </div>
+    </div>
+</div>
+{% else %}
+<div class="flex items-center justify-center bg-body">
+    <div class="rounded-xl bg-white shadow-xl p-10 flex flex-col items-center gap-8 w-full max-w-md">
+        <h1 class="text-3xl font-bold text-black mb-4 text-center">
+            Acceso denegado
+        </h1>
+        <p>
+            Pagina visible exclusivamente para administradores.
+        </p>
+        <div class="container mx-auto px-2 sm:px-8">
+      <div style="text-align: center; margin-top: 30px;">
+      <a class="btn-effect rounded-lg bg-primary-color p-2 font-bold uppercase text-white" href="{{ url_for('index') }}">
+        <span>Volver al inicio</span>
+      </a>
+      </div>
+  </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+

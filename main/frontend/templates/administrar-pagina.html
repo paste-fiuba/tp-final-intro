@@ -1,0 +1,223 @@
+{% extends "base.html" %} {% block title %}Ludoteca - Administrar pagina{%
+endblock %} {% block content %}
+
+{% if perfil_usuario.role == "admin" %}
+
+<div class="flex min-h-[70vh] items-center justify-center bg-body">
+    <div class="rounded-xl bg-white shadow-xl p-10 flex flex-col items-center gap-8 w-full max-w-md">
+        <h1 class="text-3xl font-bold text-black mb-4 text-center">
+            Administrar Página
+        </h1>
+        <div class="flex flex-row gap-6 w-full justify-center">
+            <button
+                class="mx-2 flex-1 flex items-center justify-center gap-2 rounded-lg p-4 text-lg font-bold uppercase text-white shadow-lg hover:scale-105 transition-all-300"
+                style="background-color: #0e506c"
+                onclick="document.getElementById('mi-modal').classList.remove('hidden', 'invisible','opacity-0');">
+                <i class="bi bi-plus-circle text-2xl"></i>
+                Ver stock
+            </button>
+            <button
+                class="mx-2 flex-1 flex items-center justify-center gap-2 rounded-lg p-4 text-lg font-bold uppercase text-white shadow-lg hover:scale-105 transition-all-300"
+                style="background-color: #0e506c"
+                onclick="document.getElementById('mi-modal2').classList.remove('hidden', 'invisible','opacity-0');">
+                <i class="bi bi-trash text-2xl"></i>
+                Eliminar producto
+            </button>
+            </button>
+            <button
+                class="mx-2 flex-1 flex items-center justify-center gap-2 rounded-lg p-4 text-lg font-bold uppercase text-white shadow-lg hover:scale-105 transition-all-300"
+                style="background-color: #0e506c"
+                onclick="document.getElementById('modal-agregar-admin').classList.remove('invisible','opacity-0');">
+                <i class="bi bi-person-plus text-2xl"></i>
+                Agregar admin
+            </button>
+            <a href="{{ url_for('administrar_pedidos') }}"
+                class="mx-2 flex-1 flex items-center justify-center gap-2 rounded-lg p-4 text-lg font-bold uppercase text-white shadow-lg hover:scale-105 transition-all-300"
+                style="background-color: #0e506c"
+                onclick="document.getElementById('modal-dos').classList.remove('hidden')">
+                <i class="bi bi-box-seam"></i>
+                Ver pedidos
+            </a>
+        </div>
+    </div>
+</div>
+{% with mensajes = get_flashed_messages(with_categories=True) %}
+  {% if mensajes %}
+    <div class="flex justify-center mt-6">
+      <div id="mensaje-resultado" class="space-y-2 w-full max-w-md text-center">
+        {% for category, mensaje in mensajes %}
+          <div class="px-4 py-3 rounded-lg font-semibold
+            {% if category == 'success' %}
+              bg-green-100 text-green-700 border border-green-300
+            {% elif category == 'error' %}
+              bg-orange-100 text-orange-700 border border-orange-300
+            {% else %}
+              bg-gray-100 text-gray-800 border border-gray-300
+            {% endif %}
+          ">
+            {{ mensaje }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}
+<!-- Modal add admin-->
+ <div id="modal-agregar-admin"
+     class="invisible opacity-0 fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4">Agregar Administrador</h2>
+        <form id="form-agregar-admin" method="POST" action="/agregar-admin">
+            <input type="text" name="username" placeholder="Nombre de usuario" class="w-full p-2 mb-3 border rounded" required>
+            <input type="email" name="email" placeholder="Email" class="w-full p-2 mb-3 border rounded">
+            <input type="password" name="password" placeholder="Contraseña" class="w-full p-2 mb-3 border rounded" required>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="cerrarModalAdmin()" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal 1 -->
+<div id="mi-modal"
+    class="entry-modal modal transition-all-300 invisible fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-start overflow-auto bg-overlay opacity-0">
+    <div class="my-10 flex w-full justify-center">
+        <div
+            class="entry-content modal-content transition-all-300 relative mx-3 w-[500px] min-w-[250px] rounded-lg bg-white px-3 pb-3 pt-7 xs:px-5 xs:pb-5 md:m-5">
+            <button
+                class="btn-close-modal transition-all-300 absolute top-0 right-0 p-2 sm:top-[-10px] sm:right-[-10px] sm:rounded-lg sm:bg-primary-color sm:text-white sm:hover:bg-primary-hover"
+                onclick="document.getElementById('mi-modal').classList.add('invisible','opacity-0')"
+                aria-label="Cerrar">
+                <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex"></i>
+            </button>
+            <div class="flex flex-col items-center gap-4">
+                <h2 class="text-xl font-bold text-primary-color text-center" style="color: #0e506c">
+                    Stock
+                </h2>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2">Producto</th>
+                            <th class="px-4 py-2">Cantidad</th>
+                            <th class="px-4 py-2">Cambiar stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dato in stock %}
+                        <tr>
+                            <td class="px-4 py-2">{{ dato.nombre }}</td>
+                            <td class="px-4 py-2">{{ dato.stock }}</td>
+                            <td class="px-4 py-2">
+                                <form method="post" action="{{ url_for('administrar_pagina') }} "
+                                    class = "flex items-center gap-2" >
+                                    <input type="hidden" name="nombre" value="{{ dato.nombre }}">
+                                    <input type="int" name="stock_nuevo" min="0" required
+                                        class="w-16 rounded border border-gray-300 px-3 py-1">
+                                    <button type="submit"
+                                        class="rounded bg-primary-color px-2 py-1 text-white hover:bg-primary-hover transition-all-300">
+                                        Modificar
+                                    </button>
+                                </form>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="mi-modal2"
+    class="entry-modal modal transition-all-300 invisible fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-start overflow-auto bg-overlay opacity-0">
+    <div class="my-10 flex w-full justify-center">
+        <div
+            class="entry-content modal-content transition-all-300 relative mx-3 w-[500px] min-w-[250px] rounded-lg bg-white px-3 pb-3 pt-7 xs:px-5 xs:pb-5 md:m-5">
+            <button
+                class="btn-close-modal transition-all-300 absolute top-0 right-0 p-2 sm:top-[-10px] sm:right-[-10px] sm:rounded-lg sm:bg-primary-color sm:text-white sm:hover:bg-primary-hover"
+                onclick="document.getElementById('mi-modal2').classList.add('invisible','opacity-0')"
+                aria-label="Cerrar">
+                <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex"></i>
+            </button>
+            <div class="flex flex-col items-center gap-4">
+                <h2 class="text-xl font-bold text-primary-color text-center" style="color: #0e506c">
+                    Eliminar producto
+                </h2>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2">Producto</th>
+                            <th class="px-4 py-2">Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td class="px-4 py-2">{{ producto.nombre }}</td>
+                            <td class="px-4 py-2">
+                                <form method="post" action="{{ url_for('eliminar_producto', product_id=producto.id) }} " style="display:inline;">
+                                    <button type="submit"
+                                        class="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-800 transition-all-300"
+                                        onclick="return confirm('¿Seguro que deseas eliminar este producto?');">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function cerrarModalAdmin() {
+    const modal = document.getElementById('modal-agregar-admin');
+    if (modal) {
+        modal.classList.add('invisible', 'opacity-0');
+    }
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Cerrá el modal si está accidentalmente visible
+  const modales = document.querySelectorAll('.modal');
+  modales.forEach(modal => {
+    modal.classList.add('hidden'); // asegurarse de que esté oculto
+    modal.classList.remove('opacity-100', 'visible'); // sacar clases de visibilidad
+    modal.classList.add('opacity-0', 'invisible'); // poner clases para ocultar
+  });
+});
+</script>
+<script>
+  setTimeout(() => {
+    const mensaje = document.getElementById('mensaje-resultado');
+    if (mensaje) {
+      // Para ocultar suavemente, podés agregar una transición CSS y luego ocultar:
+      mensaje.style.transition = 'opacity 0.5s ease';
+      mensaje.style.opacity = '0';
+      setTimeout(() => mensaje.remove(), 500); // eliminar el div después de la transición
+    }
+  }, 5000); // 5000 ms = 5 segundos
+</script>
+{% else %}
+<div class="flex items-center justify-center bg-body">
+    <div class="rounded-xl bg-white shadow-xl p-10 flex flex-col items-center gap-8 w-full max-w-md">
+        <h1 class="text-3xl font-bold text-black mb-4 text-center">
+            Acceso denegado
+        </h1>
+        <p>
+            Pagina visible exclusivamente para administradores.
+        </p>
+        <div class="container mx-auto px-2 sm:px-8">
+      <div style="text-align: center; margin-top: 30px;">
+      <a class="btn-effect rounded-lg bg-primary-color p-2 font-bold uppercase text-white" href="{{ url_for('index') }}">
+        <span>Volver al inicio</span>
+      </a>
+      </div>
+  </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

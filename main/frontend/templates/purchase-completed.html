@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase completed - Ludoteca{% endblock %}
+
+{% block content %}
+  <div class="purchase-completed-section container mx-auto my-5 px-2 sm:px-8">
+    <div class="flex flex-col items-center gap-2 text-center">
+      <div class="max-h-[500px] max-w-[500px]">
+        <img class="h-full w-full p-5 rounded-full" src="{{url_for('static', filename='/images/banner/banner-compra.png')}}" alt="purchase completed"/>
+      </div>
+      <h1 class="text-4xl uppercase text-primary-color" style="color:black">
+        Tu pedido ha sido procesado con éxito
+      </h1><br>
+    </div>
+    
+    <p class="text-lg">
+      <b>Detalles de tu compra</b>
+    </p>
+    
+    <ul class="detalles-compra">
+  <li>ID Pedido: #{{ pedido.id }}</li>
+  <li>Cliente: {{ pedido.cliente }}</li>
+  <li>Productos:
+    <ul class="ml-5 list-disc">
+      {% for producto in pedido.productos %}
+      <li>{{ producto.nombre }} (x{{ producto.cantidad }}) - ${{ producto.precio * producto.cantidad }}</li>
+      {% endfor %}
+    </ul>
+  <li><b>Total: ${{ pedido.total }}</b></li>
+</ul>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a class="btn-effect rounded-lg bg-primary-color p-2 font-bold uppercase text-white" href="{{ url_for('index') }}">
+        <span>Volver al inicio</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0">
+    <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+      <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white"></i>
+    </div>
+  </div>
+{% endblock %}

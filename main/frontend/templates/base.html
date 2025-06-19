@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="{{ url_for('static', filename='images/svg/logo-32.svg') }}" sizes="32x32" type="image/x-icon">
+  <link rel="icon" href="{{ url_for('static', filename='images/svg/logo-64.svg') }}" sizes="64x64" type="image/x-icon">
+  <link rel="icon" href="{{ url_for('static', filename='images/svg/logo-128.svg') }}" sizes="128x128"
+    type="image/x-icon">
+  <link rel="stylesheet" href="{{url_for('static', filename='libraries/swiper@11.0.4/swiper-bundle.min.css')}}" />
+  <link rel="stylesheet" href="{{url_for('static', filename='fonts/bootstrap-icons.css')}}" />
+  <link rel="stylesheet" href="{{url_for('static', filename='libraries/metismenujs.min.css')}}" />
+  <link rel="stylesheet" href="{{url_for('static', filename='libraries/iziToast/iziToast.min.css')}}" />
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <title>{% block title %} Ludoteca central {% endblock %}</title>
+  {% block styles %}{% endblock %}
+</head>
+
+<body class="flex min-h-screen flex-col overflow-hidden bg-body font-poppins text-txt">
+  <header class="header-section relative z-30 shadow-custom-1">
+    <div class="hidden bg-secondary-color sm:flex">
+      <div class="container mx-auto grid h-full grid-cols-12 px-2 py-[6px] sm:px-8" style="background-color: #0E506C;">
+        <div class="col-span-8 self-center">
+          <div class="flex gap-[15px]">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-envelope flex text-2xl text-primary-color"></i>
+              <a class="font-light text-white">{{ MAIL }}</a>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="bi bi-telephone flex text-xl text-primary-color"></i>
+              <a class="font-light text-white">{{ NUMERO }}</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-4 self-center justify-self-end">
+        </div>
+      </div>
+    </div>
+    <div class="bg-secondary-color">
+      <div class="container mx-auto grid h-full grid-cols-4 gap-1 px-2 py-5 sm:px-8 lg:grid-cols-12 lg:gap-0"
+        style="background-color: #fff; color: #0E506C;">
+        <div class="order-1 col-span-2 self-center lg:order-1 lg:col-span-3 flex items-center gap-3">
+          <a href="{{url_for('index')}}">
+            <img class="inline h-16 w-auto" src="{{url_for('static', filename='images/svg/logo.svg')}}"
+              alt="{{ BRAND_NAME }}" />
+          </a>
+          {% if session.get('logged_in') %}
+            Bienvenido, <span class="text-accent-color">{{ session.get('username') }}</span>
+          {% endif %}
+        </div>
+        <div
+          class="header-search transition-all-300 order-3 col-span-4 mt-[10px] hidden self-center lg:order-2 lg:col-span-6 lg:mt-0 lg:block">
+          <form class="search" action="{{ url_for('buscar_productos') }}" method="get">
+            <div class="flex h-[40px] overflow-hidden rounded-[50px] bg-primary-rgba">
+              <input
+                class="search w-full border-none bg-transparent py-[5px] pl-5 text-white placeholder-icon focus:border-none focus:ring-0 focus:ring-transparent"
+                type="search" name="q" placeholder="Buscar productos..." />
+              <button class="btn-search px-3 text-white" type="submit">
+                <i class="bi bi-search flex text-xl"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="order-2 col-span-2 flex gap-2 self-center justify-self-end lg:order-3 lg:col-span-3 xl:gap-5">
+          <div class="flex items-center lg:hidden">
+            <button class="btn-search-mob p-[5px] text-white">
+              <i class="bi bi-search pointer-events-none flex text-2xl"></i>
+            </button>
+          </div>
+          <div class="flex items-center lg:hidden">
+            <button class="btn-open-modal text-white" data-target=".menu-mob">
+              <i class="bi bi-list pointer-events-none flex text-3xl"></i>
+            </button>
+          </div>
+          <div class="group-items hidden items-center gap-5 text-white lg:flex">
+
+  <div class="relative">
+    <a href="{{ url_for('shopping_cart') }}" class="flex items-center">
+      <i class="bi bi-cart2 pointer-events-none flex text-[35px] text-white" style="color:#0E506C;"></i>
+      <span class="badge absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">{{ cart_count }}</span>
+    </a>
+  </div>
+</div>
+          <div class="group relative">
+            <a class="cursor-pointer">Cuenta</a>
+            <div
+              class="transition-all-300 invisible absolute top-full z-30 w-auto min-w-[160px] pt-[10px] opacity-0 group-hover:visible group-hover:opacity-100">
+              <div class="arrow relative">
+                <ul class="overflow-hidden rounded-md bg-white p-[6px] shadow-custom-1">
+                  {% if logged_in %}
+                  <li class="hover:font-semibold">
+                    <a href="{{ url_for('logout') }}">
+                      <div class="flex items-center gap-2 p-1">
+                        <i class="bi bi-box-arrow-right text-xl text-primary-color" style="color: #011638;"></i>
+                        <span>Salir</span>
+                      </div>
+                    </a>
+                  </li>
+                  {% else %}
+                  <li class="hover:font-semibold">
+                    <a href="#" class="btn-open-modal" data-tab="0" data-target=".entry-modal">
+                      <div class="pointer-events-none flex items-center gap-2 p-1">
+                        <i class="bi bi-box-arrow-in-right text-xl text-primary-color" style="color: #011638;"></i>
+                        <span>Iniciar sesión</span>
+                      </div>
+                    </a>
+                  </li>
+                  <li class="hover:font-semibold">
+                    <a href="#" class="btn-open-modal" data-tab="1" data-target=".entry-modal">
+                      <div class="pointer-events-none flex items-center gap-2 p-1">
+                        <i class="bi bi-person text-xl text-primary-color" style="color: #011638;"></i>
+                        <span>Registrarse</span>
+                      </div>
+                    </a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hidden bg-white lg:block">
+      <nav class="container mx-auto px-2 sm:px-8">
+        <ul class="menu flex flex-wrap items-center justify-between py-[10px] text-lg">
+           <li class="underlined-animated">
+            <a href="{{url_for('index')}}">Home</a>
+          </li>
+          <li class="underlined-animated group relative">
+            <a href="{{ url_for('shop_mixed') }}" class="btn-open flex items-center gap-1 ">
+              <span>Productos</span>
+              <i
+                class="bi bi-caret-down-fill transition-all-300 flex rotate-0 text-xs text-primary-color group-hover:rotate-180"></i>
+            </a>
+            <div
+              class="submenu transition-all-300 invisible absolute left-0 pt-[10px] opacity-0 group-hover:visible group-hover:opacity-100">
+              <ul class="relative w-[250px] bg-white text-base shadow-custom-1">
+                {% for categoria in categorias %}
+                <li class="group-1">
+                  <a href="{{url_for('shop_mixed', categoria=categoria)}}" class="flex items-center gap-2 p-2">
+                    <i class="bi bi-circle-fill group-1-hover-visible invisible flex text-[6px] text-primary-color"></i>
+                    <span class="group-1-hover-font">{{ categoria }}</span>
+                    <i
+                      class="bi bi-caret-right-fill group-1-hover-visible invisible ml-auto flex text-xs text-primary-color"></i>
+                  </a>
+
+                  <div
+                    class="submenu group-1-hover-visible transition-all-300 invisible absolute top-0 left-full min-h-full min-w-[680px] opacity-0">
+                    <div class="bg-white shadow-custom-2">
+
+                      <div class="border-b-2 border-primary-color py-[10px]">
+                        <span class="px-5 text-3xl font-bold uppercase text-primary-color">{{ categoria }}</span>
+                      </div>
+
+                      <div class="submenu-categories flex flex-wrap">
+                        {% for producto in productos %}
+                        {% if producto.categoria == categoria %}
+                        <div class="group-2 p-[10px]">
+                          <a class="categorie-container inline-block"
+                            href="{{ url_for('product_details', product_id=producto.id) }}">
+                            <div class="categorie-img h-[150px] w-[150px]">
+                              <img class="img-product group-2-hover-img"
+                                src="{{ url_for('obtener_imagen_producto', producto_id=producto.id) }}"
+                                alt="{{ producto.nombre }}" />
+                            </div>
+                            <span class="group-2-hover-font block text-center">{{ producto.nombre }}</span>
+                          </a>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </li>
+         
+          
+          <li class="underlined-animated">
+            <a href="{{url_for('my_account')}}">
+              <span class=" group-1-hover-font">Mi cuenta</span>
+            </a>
+          </li>
+          <li class="underlined-animated">
+            <a href="{{url_for('contact_us')}}">Contactanos</a>
+          </li>
+          {% if perfil_usuario.role == "admin" %}
+          <li class="underlined-animated">
+            <a href="{{url_for('administrar_pagina')}}">Administrar pagina</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  {% block content %}
+
+  {% endblock %}
+
+
+ 
+  <div id="auth-modal"
+    class="entry-modal modal transition-all-300 invisible fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-start overflow-auto bg-overlay opacity-0">
+    <div class="my-10 flex w-full justify-center">
+      <div
+        class="entry-content modal-content transition-all-300 relative mx-3 w-[500px] min-w-[250px] rounded-lg bg-white px-3 pb-3 pt-7 xs:px-5 xs:pb-5 md:m-5">
+        <button
+          class="btn-close-modal transition-all-300 absolute top-0 right-0 p-2 sm:top-[-10px] sm:right-[-10px] sm:rounded-lg sm:bg-primary-color sm:text-white sm:hover:bg-primary-hover">
+          <i class="bi bi-x-lg text-stroke-medium pointer-events-none flex"></i>
+        </button>
+        <div class="tabs-container entry-container">
+          <ul class="flex justify-between">
+            <li
+              class="btn-tabs tab-active-1 transition-all-300 active w-full cursor-pointer border bg-gray-200 p-2 text-center text-gray-400">
+              Iniciar sesión
+            </li>
+            <li
+              class="btn-tabs tab-active-1 transition-all-300 w-full cursor-pointer border bg-gray-200 p-2 text-center text-gray-400">
+              Registrarse
+            </li>
+          </ul>
+          <div class="tabs-content border border-t-transparent">
+            <div class="tab-content invisible absolute w-full p-5 opacity-0">
+              <div class="my-5">
+                <img class="mx-auto" src="{{url_for('static', filename='images/svg/logo.svg')}}"
+                  alt="{{ BRAND_NAME }}" />
+              </div>
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                    {% if category == 'success' %}
+                      <div class="mi-alerta-exito mb-2 text-center">{{ message }}</div>
+                    {% elif category == 'error' %}
+                      <div class="mi-alerta mb-2 text-center">{{ message }}</div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+              <form method="post" action="/ingresar">
+                <div class="flex flex-col gap-4">
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-person absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="text" name="username" placeholder="Usuario o Email" required />
+                  </div>
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-lock absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="password" name="password" placeholder="Contraseña" required />
+                  </div>
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-lock absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="email" name="email" placeholder="Email" required />
+                  </div>
+                  {% if login_error %}
+                  <div class="mi-alerta">{{ login_error }}</div>
+                  {% endif %}
+                  <button class="btn-effect transition-all-300 h-full w-full rounded-lg bg-primary-color p-2"
+                    type="submit">
+                    <span class="font-bold uppercase text-white">Iniciar sesión</span>
+                  </button>
+                </div>
+                <div class="my-2 flex flex-wrap items-center justify-between gap-2">
+                  <label class="flex select-none items-center gap-2">
+                    <input class="checkbox" type="checkbox" />
+                    <span class="text-gray-title">Recordar</span>
+                  </label>
+                </div>
+              </form>
+              
+              <div class="flex flex-col flex-wrap justify-center gap-5 sm:flex-row">
+                
+              </div>
+            </div>
+            <div class="tab-content invisible absolute w-full bg-white p-5 opacity-0">
+              <div class="my-5">
+                <img class="mx-auto" src="{{url_for('static', filename='images/svg/logo.svg')}}"
+                  alt="{{ BRAND_NAME }}" />
+              </div>
+              <form method="post" action="/registro">
+                <div class="flex flex-col gap-4">
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-person absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="text" placeholder="Usuario" name="username" required />
+                  </div>
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-lock absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="email" name="email" placeholder="Email" required />
+                  </div>
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-lock absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="password" placeholder="Contraseña" name="password" required />
+                  </div>
+                  <div class="relative flex h-[40px] items-center">
+                    <i class="bi bi-lock-fill absolute ml-2 flex text-[24px] text-gray-400"></i>
+                    <input class="input pl-10" type="password" placeholder="Confirmar Contraseña" name="confirm_password"
+                      required />
+                  </div>
+                  {% if signup_error %}
+                  <div class="mi-alerta">{{ signup_error }}</div>
+                  {% endif %}
+                  <button class="btn-effect transition-all-300 h-full w-full rounded-lg bg-primary-color p-2"
+                    type="submit">
+                    <span class="font-bold uppercase text-white">Registrarse</span>
+                  </button>
+                </div>
+                <div class="my-2 flex items-center justify-between">
+                  <label class="flex select-none items-center gap-2">
+                    <input class="checkbox" type="checkbox" />
+                    <span class="text-gray-title">Acepto todos los 
+                      <a class=" text-[#3091ff] after:bottom-0" href="#">Terminos de uso</a>
+                      &
+                      <a class=" text-[#3091ff] after:bottom-0" href="#">Politicas de Privacidad</a>.</span>
+                  </label>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- -->
+
+
+  <div class="btn-gotop transition-all-300 invisible fixed bottom-[-999px] right-10 z-50 opacity-0 rounded-lg"
+    style="background: #0E506C;">
+    <div class="transition-all-300 cursor-pointer rounded-lg bg-[rgba(0,0,0,.3)] p-3 hover:bg-primary-color">
+      <i class="bi bi-chevron-compact-up pointer-events-none flex text-2xl text-white" style="color: #fff;"></i>
+    </div>
+  </div>
+
+  <div class="loader fixed z-[999] flex h-screen w-screen items-center justify-center bg-body">
+    <div class="loader-content flex flex-col items-center gap-2">
+      <span class="text-3xl font-semibold text-gray-200">Ludoteca central</span>
+      <div class="flex h-1 w-40 gap-1 overflow-hidden bg-gray-200">
+        <div class="animation-loader h-full w-20 bg-primary-color"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-section mt-auto w-full bg-white text-gray-400">
+    <div class="container mx-auto flex justify-center px-4 sm:px-8 py-[50px]">
+      <div class="flex flex-col items-center">
+        <div class="pb-6">
+          <img src="{{url_for('static', filename='images/svg/logo.svg')}}" class="h-[40px]" alt="logo" />
+        </div>
+        <div>
+          <div class="flex items-center gap-[10px] py-2">
+            <i class="bi bi-envelope-fill flex text-xl text-gray-500"></i>
+            <a class="break-all">{{ MAIL }}</a>
+          </div>
+          <div class="flex items-center gap-[10px] py-2">
+            <i class="bi bi-telephone-fill flex text-xl text-gray-500"></i>
+
+            <a class="break-all">{{ NUMERO }}</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="{{url_for('static', filename='libraries/popperjs/core.js')}}"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
+  <script src="{{url_for('static', filename='libraries/swiper@11.0.4/swiper-bundle.min.js')}}"></script>
+  <script src="{{url_for('static', filename='libraries/metismenujs@1.4.0/dist/metismenujs.min.js')}}"></script>
+  <script src="{{url_for('static', filename='libraries/iziToast/iziToast.min.js')}}"></script>
+  <script src="{{url_for('static', filename='js/main.js')}}"></script>
+  {% block scripts %}{% endblock %}
+  <script>
+    window.addEventListener('load', function () {
+      var loader = document.querySelector('.loader');
+      if (loader) loader.style.display = 'none';
+    });
+  </script>
+  {% if open_login_modal %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const loginButton = document.querySelector('.btn-open-modal[data-tab="0"]');
+      if (loginButton) {
+        loginButton.click();
+      }
+    });
+  </script>
+  {% endif %}
+
+  {% if open_register_modal %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const registerButton = document.querySelector('.btn-open-modal[data-tab="1"]');
+      if (registerButton) {
+        registerButton.click();
+      }
+    });
+  </script>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const loginButton = document.querySelector('.btn-open-modal[data-tab="0"]');
+          if (loginButton) {
+            loginButton.click();
+          }
+        });
+      </script>
+    {% endif %}
+  {% endwith %}  
+</body>
+
+</html>
